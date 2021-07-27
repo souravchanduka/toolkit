@@ -167,7 +167,7 @@ function getIDToken(audience) {
 }
 exports.getIDToken = getIDToken;
 //module.exports.getIDToken = getIDToken
-getIDToken('ghactions');
+//getIDToken('ghactions')
 //# sourceMappingURL=main.js.map
 
 /***/ }),
