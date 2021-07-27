@@ -1,5 +1,6 @@
 import * as core from '@actions/core'
 import * as actions_http_client from '@actions/http-client'
+import {IHeaders} from '@actions/http-client/interfaces'
 import {
   createHttpClient,
   isSuccessStatusCode,
@@ -42,10 +43,11 @@ export async function getIDToken(audience: string): Promise<string> {
     }
     core.debug(`Httpclient created ${httpclient} `) // debug is only output if you set the secret `ACTIONS_RUNNER_DEBUG` to true
 
-    const additionalHeaders = {
-      [actions_http_client.Headers.ContentType]:
-        actions_http_client.MediaTypes.ApplicationJson
-    }
+    const additionalHeaders: IHeaders = {}
+    additionalHeaders[actions_http_client.Headers.ContentType] =
+      actions_http_client.MediaTypes.ApplicationJson
+    additionalHeaders[actions_http_client.Headers.Accept] =
+      actions_http_client.MediaTypes.ApplicationJson
 
     const data: string = JSON.stringify({aud: audience})
     const response = await httpclient.post(
@@ -56,7 +58,7 @@ export async function getIDToken(audience: string): Promise<string> {
 
     if (!isSuccessStatusCode(response.message.statusCode)) {
       throw new Error(
-        `Failed to get ID Token. Error message  :${response.message.statusMessage} `
+        `Failed to get ID Token. Error message  :${response.message.statusMessage} id_token_url:${id_token_url} data:${data} additionalHeader:${additionalHeaders}`
       )
     }
 
