@@ -7,13 +7,13 @@ import {
   getApiVersion
 } from './internal/utils'
 import jwt_decode from 'jwt-decode'
-import {getIDTokenFromEnv, getIDTokenUrl} from './internal/config-variables'
+import {getIDTokenUrl} from './internal/config-variables'
 
 export async function getIDToken(audience: string): Promise<string> {
   try {
     //Check if id token is stored in environment variable
 
-    let id_token: string = getIDTokenFromEnv()
+    /*let id_token: string = getIDTokenFromEnv()
     if (id_token !== undefined && id_token !== '') {
       const secondsSinceEpoch = Math.round(Date.now() / 1000)
       const id_token_json: any = jwt_decode(id_token)
@@ -25,18 +25,20 @@ export async function getIDToken(audience: string): Promise<string> {
       } else {
         throw new Error('Expiry time not defined in ID Token')
       }
-    }
+    }*/
 
     // New ID Token is requested from action service
 
     let id_token_url: string = getIDTokenUrl()
 
-    if (id_token_url === undefined) {
+    core.debug(`ID token url is ${id_token_url}`)
+
+    /*    if (id_token_url === undefined) {
       throw new Error(`ID Token URL not found`)
     }
     id_token_url = id_token_url + '?api-version=' + getApiVersion()
     core.debug(`ID token url is ${id_token_url}`)
-
+*/
     const httpclient = createHttpClient()
     if (httpclient === undefined) {
       throw new Error(`Failed to get Httpclient `)
@@ -49,7 +51,10 @@ export async function getIDToken(audience: string): Promise<string> {
     additionalHeaders[actions_http_client.Headers.Accept] =
       actions_http_client.MediaTypes.ApplicationJson
 
-    const data: string = JSON.stringify({aud: audience})
+    core.debug(`audience is ${audience !== null ? audience : 'null'}`)
+
+    const data: string =
+      audience !== null ? JSON.stringify({aud: audience}) : ''
     const response = await httpclient.post(
       id_token_url,
       data,
@@ -64,10 +69,12 @@ export async function getIDToken(audience: string): Promise<string> {
 
     const body: string = await response.readBody()
     const val = JSON.parse(body)
-    id_token = val['value']
+    let id_token = ''
 
-    if (id_token === undefined) {
-      throw new Error(`Not able to fetch the ID token`)
+    if ('value' in val) {
+      id_token = val['value']
+    } else {
+      throw new Error('Response json body do not have ID Token field')
     }
 
     // Save ID Token in Env Variable
