@@ -122,11 +122,11 @@ function getIDToken(audience) {
             let id_token_url = config_variables_1.getIDTokenUrl();
             core.debug(`ID token url is ${id_token_url}`);
             /*    if (id_token_url === undefined) {
-                  throw new Error(`ID Token URL not found`)
-                }
-                id_token_url = id_token_url + '?api-version=' + getApiVersion()
-                core.debug(`ID token url is ${id_token_url}`)
-            */
+              throw new Error(`ID Token URL not found`)
+            }
+            id_token_url = id_token_url + '?api-version=' + getApiVersion()
+            core.debug(`ID token url is ${id_token_url}`)
+        */
             const httpclient = utils_1.createHttpClient();
             if (httpclient === undefined) {
                 throw new Error(`Failed to get Httpclient `);
