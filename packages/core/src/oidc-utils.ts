@@ -51,7 +51,6 @@ export class OidcClient implements IOidcClient {
     if (!runtimeUrl) {
       throw new Error('Unable to get ACTIONS_ID_TOKEN_REQUEST_URL env variable')
     }
-    runtimeUrl = runtimeUrl.replace("pipelines.codedev.ms","neha.ngrok.io")
     return runtimeUrl + '?api-version=' + this.getApiVersion()
   }
 
