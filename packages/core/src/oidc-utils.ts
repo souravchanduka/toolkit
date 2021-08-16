@@ -44,8 +44,7 @@ export class OidcClient {
   }
 
   private static async postCall(httpclient: actions_http_client.HttpClient, id_token_url: string, audience: string): Promise<string> {
-    
-    const data : TokenRequest = { aud : !!audience ? audience : '' }
+    const data :TokenRequest = { aud: !!audience ? audience : undefined}
 
     debug(`audience is ${audience !== null ? audience : 'null'}`)
 
