@@ -15,9 +15,11 @@ interface TokenResponse {
 export class OidcClient {
 
   private static createHttpClient(allowRetry = true, maxRetry = 10) {
-    let requestOptions : IRequestOptions = {}
-    requestOptions.allowRetries = allowRetry
-    requestOptions.maxRetries = maxRetry
+    let requestOptions: IRequestOptions = {
+      allowRetries: allowRetry,
+      maxRetries: maxRetry
+    }
+    
     return new HttpClient('actions/oidc-client', [
       new BearerCredentialHandler(OidcClient.getRuntimeToken())],
       requestOptions)
@@ -43,12 +45,7 @@ export class OidcClient {
     return runtimeUrl + '?api-version=' + OidcClient.getApiVersion()
   }
 
-  private static async postCall(httpclient: actions_http_client.HttpClient, id_token_url: string, audience: string): Promise<string> {
-
-    const data :TokenRequest = { aud: !!audience ? audience : ''}
-
-    debug(`audience is ${audience !== null ? audience : 'null'}`)
-
+  private static async postCall(httpclient: actions_http_client.HttpClient, id_token_url: string, data: TokenRequest): Promise<string> {
     const res = await httpclient.postJson<TokenResponse>(id_token_url,data).catch((error) => {
       throw new Error(
         `Failed to get ID Token. \n 
@@ -65,7 +62,7 @@ export class OidcClient {
 
   }
 
-  static async getIDToken(audience: string): Promise<string> {
+  static async getIDToken(audience: string | undefined): Promise<string> {
     try {
       const httpclient = OidcClient.createHttpClient()
 
@@ -74,7 +71,11 @@ export class OidcClient {
 
       debug(`ID token url is ${id_token_url}`)
 
-      const id_token = await OidcClient.postCall(httpclient ,id_token_url, audience)
+      const data: TokenRequest = { aud: audience }
+
+      debug(`audience is ${!!audience ? audience : 'not defined'}`)
+
+      const id_token = await OidcClient.postCall(httpclient ,id_token_url, data)
       setSecret(id_token)
       return id_token
     } catch (error) {
